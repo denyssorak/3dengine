@@ -1,0 +1,15 @@
+# ignoring the executable files
+main
+*.out
+*.exe
+
+# ignoring the object files
+*.o
+
+# build directories
+obj/
+
+# local IDE configurations
+.vscode/
+.idea/
+*.swp
