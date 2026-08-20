@@ -2,6 +2,7 @@
 #include <ncurses.h>
 
 #include "../include/map.h"
+#include "../include/player.h"
 
 #define MAP_SIZEX 10
 #define MAP_SIZEY 10
@@ -24,19 +25,24 @@ int main(void)
 {
 	initNcurses();
 
-/*
-	attron(COLOR_PAIR(1));
-	printw("TESTING NCURSES");
-	attroff(COLOR_PAIR(1));
-*/
-
 	Map map;
 	initMap(&map, MAP_SIZEX, MAP_SIZEY);
 
+	Player player;
+	initPlayer(&player, 5.0f, 5.0f, 0.0f);
+
+/*	// Testing map intialization
 	for (int i = 0; i < MAP_SIZEX * MAP_SIZEY; i++)
 	{
 		printw("%i", map.layout[i]);
 	}
+*/
+
+/*	// Testing player initialization
+	printw("%f\n", player.x);
+	printw("%f\n", player.y);
+	printw("%f\n", player.angle);
+*/
 
 	int ch;
 	while ((ch = getch()) != 'q')
