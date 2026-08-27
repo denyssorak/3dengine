@@ -3,6 +3,7 @@
 
 #include "../include/map.h"
 #include "../include/player.h"
+#include "../include/raycasting.h"
 
 #define MAP_SIZEX 10
 #define MAP_SIZEY 10
@@ -43,6 +44,15 @@ int main(void)
 	printw("%f\n", player.y);
 	printw("%f\n", player.angle);
 */
+
+/*
+	// Testing one direction raycasting
+	float distance = castray(5, 5, map.layout, 0.0f);
+	printw("%f\n", distance);
+*/
+
+	// Testing whole frame rendering
+	render_frame(&player, &map);
 
 	int ch;
 	while ((ch = getch()) != 'q')
