@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <ncurses.h>
+#include <math.h>
 
 #include "../include/map.h"
 #include "../include/player.h"
@@ -32,32 +33,35 @@ int main(void)
 	Player player;
 	initPlayer(&player, 5.0f, 5.0f, 0.0f);
 
-/*	// Testing map intialization
-	for (int i = 0; i < MAP_SIZEX * MAP_SIZEY; i++)
-	{
-		printw("%i", map.layout[i]);
-	}
-*/
-
-/*	// Testing player initialization
-	printw("%f\n", player.x);
-	printw("%f\n", player.y);
-	printw("%f\n", player.angle);
-*/
-
-/*
-	// Testing one direction raycasting
-	float distance = castray(5, 5, map.layout, 0.0f);
-	printw("%f\n", distance);
-*/
-
 	// Testing whole frame rendering
-	render_frame(&player, &map);
+	drawFrame(&player, &map);
 
 	int ch;
 	while ((ch = getch()) != 'q')
 	{
-		
+		if (ch == 'w')
+		{
+			player.x += cos(player.angle);
+			player.y += sin(player.angle);
+			drawFrame(&player, &map);
+		}
+		else if (ch == 's')
+		{
+			player.x -= cos(player.angle);
+			player.y -= sin(player.angle);
+
+			drawFrame(&player, &map);
+		}
+		else if (ch == 'a')
+		{
+			player.angle += 0.5f;
+			drawFrame(&player, &map);
+		}
+		else if (ch == 'd')
+		{
+			player.angle -= 0.5f;
+			drawFrame(&player, &map);
+		}
 	}
 
 	endwin();

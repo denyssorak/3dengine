@@ -4,54 +4,103 @@
 #include "../include/raycasting.h"
 
 #define FOV 75
-#define ANGLE FOV * 3.14 / 180
-#define COEF 0.33
+#define ANG FOV * 3.14f / 180
+#define K 160.0f
 
-void render_frame(Player *p, Map *m)
+static float castRay(float posx, float posy, Map *m, float angle)
 {
-	float posx = p->x;
-	float posy = p->y;
+	float dx = 1.0 * cos(angle);
+	float dy = 1.0 * sin(angle);
 
-	int *layout = m->layout;
-
-	float leftbound = p->angle + ANGLE/2;
-	float rightbound = p->angle - ANGLE/2;
-	
-	int x = 0;
-	float dist = 0;
-
-	for (float i = leftbound; i >= rightbound; i -= 0.1f)
-	{
-		dist = castray(posx, posy, layout, i);
-		mvprintw(3, x, "%.3f", i);
-		mvprintw(5, x, "%i", (int)dist);
-		x += 7;
-	}
-}
-
-float castray(float posx, float posy, int *layout, float angle)
-{
-	float dx = COEF * cos(angle);
-	float dy = COEF * sin(angle);
-
-	float dist = 0.0f;
+	float distance = 0.0f;
 
 	float screenx = posx;
 	float screeny = posy;
 
+	int *layout = m->layout;
+
 	while (1)
 	{
-		if (layout[(int)screenx + (int)screeny * 10] == 1)
+		if (layout[(int)screenx + (int)screeny * m->sizex] == 1)
 		{
-			return dist;
+			return distance;
 		}
+
 		screenx += dx;
 		screeny += dy;
-		dist += 1.0f;
+		distance += 1.0f;
 
-		if (screenx >= 10.0f || screenx < 0.0f || screeny >= 10.0f || screeny < 0.0f)
+		if (screenx < 0.0f || screenx >= m->sizex || screeny < 0.0f || screeny >= m->sizey)
 		{
-			return 10.0f;
+			if (m->sizex >= m->sizey)
+				return m->sizex;
+			return m->sizey;
 		}
 	}
+
+	return -1.0f;
+}
+
+static void draw(int distance, int ceiling, int floor, int x)
+{
+	int y = getmaxy(stdscr);
+	for (int i = 0; i < y; i++)
+	{
+		if (i < ceiling)
+			mvprintw(i, x, ".");
+		else if (i >= ceiling && i <= floor)
+		{
+			if (distance <= 5.0f)
+			{
+				mvprintw(i, x, "#");
+			}
+			else if (distance <= 7.0f)
+			{
+				mvprintw(i, x, "0");
+			}
+			else if (distance <= 10.0f)
+			{
+				mvprintw(i, x, "|");
+			}
+		}
+		else
+		{
+			mvprintw(i, x, "_");
+		}
+	}
+}
+
+void drawFrame(Player *p, Map *m)
+{
+	float posx = p->x;
+	float posy = p->y;
+
+	float leftbound = p->angle + ANG/2;
+	float rightbound = p->angle - ANG/2;
+	
+	int ymax = getmaxy(stdscr);
+	int xmax = getmaxx(stdscr);
+
+	int numrays = (int)(ANG / 0.01f);
+	int wallwidth = xmax / numrays + 1;
+
+	float distance;
+	int n = 0;
+
+	for (float i = leftbound; i >= rightbound; i -= 0.01f)
+	{
+		int x = (int)((float)n * xmax / numrays);
+
+		distance = castRay(posx, posy, m, i);
+		// printf("%f", distance);
+
+		int ceiling = (ymax - K / distance) / 2;
+		int floor = (ymax + K / distance) / 2;
+		for (int j = x; j < x + wallwidth && j < xmax; j++)
+		{
+			draw(distance, ceiling, floor, j);
+		}
+		n++;
+	}
+	return;
 }
